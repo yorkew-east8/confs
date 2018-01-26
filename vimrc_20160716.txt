@@ -1,0 +1,183 @@
+"=========================================================
+"    $ sudo apt-get install vim exuberant-ctags cscope
+"    $ sudo apt-get install vim-addon-manager vim-doc vim-scripts
+"    $ vim-addons install bufexplorer winmanager taglist
+"    $ sudo apt-get install vim-gnome
+"
+" Then replace this file with your ~/.vimrc.
+" Enjoy.
+"                                          by wangyue 2016
+"=========================================================
+set nocompatible
+set mouse=a
+set nobackup
+set updatetime=2000
+
+set backspace=2
+set tabstop=4
+set shiftwidth=4
+set expandtab   " for python
+
+set list
+set listchars=tab:^\ ,trail:~
+set cursorline
+
+color desert
+"set background=dark
+
+syntax on
+set number
+set smartindent
+
+set hlsearch
+set ignorecase smartcase
+
+set encoding=utf-8
+set fileencodings=utf-8,shift-jis,gb18030,gbk,gb2312,cp936,ucs-bom
+
+"set nowrap & use Shift + Left/Right for horizontal scroll
+set nowrap
+noremap <S-Left> <ScrollWheelLeft>
+inoremap <S-Left> <ScrollWheelLeft>
+noremap <S-Right> <ScrollWheelRight>
+inoremap <S-Right> <ScrollWheelRight>
+noremap <S-Up> <ScrollWheelUp>
+inoremap <S-Up> <ScrollWheelUp>
+noremap <S-Down> <ScrollWheelDown>
+inoremap <S-Down> <ScrollWheelDown>
+
+noremap <S-ScrollWheelUp> <ScrollWheelLeft>
+noremap <S-ScrollWheelDown> <ScrollWheelRight>
+
+"remap Ctrl + ScrollWheel to fix a bug (scroll pages after tag jump)
+noremap <C-ScrollWheelUp> <ScrollWheelUp>
+noremap <C-ScrollWheelDown> <ScrollWheelDown>
+
+"use Ctrl-c in Visal mode
+vmap <silent> <C-c> "+y
+"use Ctrl-a for select all
+nmap <C-a> <esc>ggVG<CR>
+"use Ctrl-v for paste
+nmap <C-v> <esc>P
+imap <C-v> <esc>pi
+vmap <C-v> "_dp
+
+"use Ctrl-s for save
+nmap <C-s> :w<CR>
+imap <C-s> <ESC>:w<CR>
+
+"Copy to System Clipboard(need gvim)
+set clipboard=unnamedplus
+
+"use mouse middle key to hightlight the current word
+nmap <MiddleMouse> #*
+imap <MiddleMouse> <esc>#*i
+vmap <MiddleMouse> <esc>#*
+
+"use F4 to save the current session, F9 to load that session.
+nmap <F4> :mksession! default.vim<cr>
+nmap <F9> :source default.vim<cr>
+set ssop-=options    " do not store global and local values in a session
+set ssop-=blank      " do not store blank windows
+set ssop-=folds      " do not store folds
+
+"Settings for Taglist
+let Tlist_Show_One_File = 1
+let Tlist_Exit_OnlyWindow = 1
+
+"Settings for WinManager
+"let winManagerWindowLayout = 'FileExplorer,BufExplorer|TagList'
+let winManagerWindowLayout = 'FileExplorer|TagList'
+let winManagerWidth = 40
+let defaultExplorer = 0
+let bufExplorerResize = 0
+"nmap <F2> :FirstExplorerWindow<CR>
+nmap <F2> :BufExplorer<CR>
+nmap <F3> <C-w><Right>
+
+nnoremap <silent> <F8> :WMToggle<CR>
+
+"Settings for cscope
+if has("cscope")
+  set csprg=/usr/bin/cscope
+  set cscopequickfix=s-,e-
+  set csto=0
+  set cst
+  set nocsverb
+  "auto add database in current directory
+  if filereadable("cscope.out")
+      cs add cscope.out
+  endif
+  set csverb
+
+  "build cscope datebase
+  function Create_cscope_out()
+    :silent !echo -e "\nScanning all c/cpp/h files here ..."
+    :silent !find . -type f -name '*.c' -o -name '*.cpp' -o -name  '*.h' >cscope.files
+    ":silent !echo "Scanning all h files in $MAKETOP/usr/pana/include/ ..."
+    ":silent !find $MAKETOP/usr/pana/include/ -type f -name '*.h' >>cscope.files
+    :silent !echo "Creating cscope database ..."
+    ":silent !cscope -bqk -I $MAKETOP/usr/pana/include -I $MAKETOP/usr/include
+    :silent !cscope -bq
+    ":silent !ctags --c++-types=+p+x -R $MAKETOP/usr/pana/include
+    :!echo "Done\!"
+
+    set nocsverb
+    " add any database in current directory
+    if filereadable("cscope.out")
+      cs kill -1
+      cs add cscope.out
+    endif
+    set csverb
+
+  endfunction
+  nnoremap <C-F12> :execute Create_cscope_out()<CR>
+
+  "build cscope datebase without /usr/pana/include/
+  function Create_cscope_out2()
+    :silent !echo -e "\nScanning all c/cpp/h files here ..."
+    :silent !find . -type f -name '*.c' -o -name '*.cpp' -o -name  '*.h' >cscope.files
+    :silent !echo "Creating cscope database ..."
+    :silent !cscope -bqk -I $MAKETOP/usr/include
+    :!echo "Done\!"
+
+    set nocsverb
+    " add any database in current directory
+    if filereadable("cscope.out")
+      cs kill -1
+      cs add cscope.out
+    endif
+    set csverb
+
+  endfunction
+  "nnoremap <C-F11> :execute Create_cscope_out2()<CR>
+
+
+  " C symbol
+  nmap <silent> <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+  nmap <silent> <F5> :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+  " definition
+  nmap <silent> <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+  nmap <silent> <F7> :cs find g <C-R>=expand("<cword>")<CR><CR>
+  " functions that called by this function
+  nmap <silent> <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+  " funtions that calling this function
+  nmap <silent> <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+  nmap <silent> <F6> :cs find c <C-R>=expand("<cword>")<CR><CR>
+  " text string
+  nmap <silent> <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+  " egrep pattern
+  nmap <silent> <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>:copen<CR>
+  " file
+  nmap <silent> <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+  " files #including this file
+  nmap <silent> <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+
+  " use :csf ... for :cs find ...
+  if version < 700
+    cnoreabbrev csf cs find
+  else
+    cnoreabbrev <expr> csf ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find' : 'csf')
+  endif
+
+endif "if has("cscope")
