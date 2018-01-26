@@ -114,12 +114,8 @@ if has("cscope")
   function Create_cscope_out()
     :silent !echo -e "\nScanning all c/cpp/h files here ..."
     :silent !find . -type f -name '*.c' -o -name '*.cpp' -o -name  '*.h' >cscope.files
-    ":silent !echo "Scanning all h files in $MAKETOP/usr/pana/include/ ..."
-    ":silent !find $MAKETOP/usr/pana/include/ -type f -name '*.h' >>cscope.files
     :silent !echo "Creating cscope database ..."
-    ":silent !cscope -bqk -I $MAKETOP/usr/pana/include -I $MAKETOP/usr/include
     :silent !cscope -bq
-    ":silent !ctags --c++-types=+p+x -R $MAKETOP/usr/pana/include
     :!echo "Done\!"
 
     set nocsverb
@@ -132,26 +128,6 @@ if has("cscope")
 
   endfunction
   nnoremap <C-F12> :execute Create_cscope_out()<CR>
-
-  "build cscope datebase without /usr/pana/include/
-  function Create_cscope_out2()
-    :silent !echo -e "\nScanning all c/cpp/h files here ..."
-    :silent !find . -type f -name '*.c' -o -name '*.cpp' -o -name  '*.h' >cscope.files
-    :silent !echo "Creating cscope database ..."
-    :silent !cscope -bqk -I $MAKETOP/usr/include
-    :!echo "Done\!"
-
-    set nocsverb
-    " add any database in current directory
-    if filereadable("cscope.out")
-      cs kill -1
-      cs add cscope.out
-    endif
-    set csverb
-
-  endfunction
-  "nnoremap <C-F11> :execute Create_cscope_out2()<CR>
-
 
   " C symbol
   nmap <silent> <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>:copen<CR>
